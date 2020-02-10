@@ -1,77 +1,74 @@
-import numpy as np 
-import pandas as pd 
-import joblib
-import json
+import numpy as np
+import pandas as pd
 import requests
 from flask import Flask, abort, jsonify, render_template,url_for, request,send_from_directory,redirect
 from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.metrics.pairwise import cosine_similarity 
+from sklearn.metrics.pairwise import cosine_similarity
 
 app = Flask(__name__)
 
-df = pd.read_csv("Pokemon.csv")
-def kombinasi(i):
+@app.route('/')
+def home():
+    return render_template('home.html')
+
+df = pd.read_csv('Pokemon.csv')
+print(df.head(5))
+
+def kombi(i):
     return str(i['Type 1'])+ '??' +str(i['Generation'])+'??'+str(i['Legendary'])
-df['Atribute']= df.apply(kombinasi,axis=1)
+
+df['Attribute']= df.apply(kombi, axis=1)
 df['Name']= df['Name'].apply(lambda i: i.lower())
 
-cov = CountVectorizer(tokenizer=lambda df: df.split('$'))
-pokeUlti = cov.fit_transform(df['Atribute'])
-skorPoke = cosine_similarity(pokeUlti)
-exfit = pokeUlti.toarray()
+ext = CountVectorizer()
+extfit = ext.fit_transform(df['Attribute'])
+ext.get_feature_names()
 
-cosScore = cosine_similarity(exfit)
+extfit = extfit.toarray()
+
+cosScore = cosine_similarity(extfit)
 cosScore
 
 pokemon = "pikachu"
 indexfav = df[df['Name'] == pokemon].index[0]
 indexfav
 
-recommendasipoke = list(enumerate(cosScore[indexfav]))
-recommendesipoke = list(filter(lambda x: x[1] > 0.5, recommendasipoke))
-recommendasipoke = recommendasipoke[:6]
+pokemonrekomendasi = list(enumerate(cosScore[indexfav]))
+pokemonrekomendasi = list(filter(lambda x: x[1] > 0.5, pokemonrekomendasi))
+pokemonrekomendasi = pokemonrekomendasi[:6]
 
-recommended = []
-for i in recommendasipoke:
-    recommended.append(df.iloc[i[0]][:-1])
+recommendedList = []
+for i in pokemonrekomendasi:
+    recommendedList.append(df.iloc[i[0]][:-1])
 
-recommendation = pd.DataFrame(recommended)
+recommendation = pd.DataFrame(recommendedList)
 
 pokemonIndex = recommendation.index
 print(recommendation)
 
-gambar = []
+pict = []
 
 for i in pokemonIndex:
-    gambar.append(f'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/{i}.png')
+    pict.append(f'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/{i}.png')
 
-recommendation['image'] = gambar
+recommendation['image'] = pict
 
 print(recommendation)
 
-
-
-@app.route('/')
-def home():
-    return render_template('home.html')
-
-
-@app.route('/hasil', methods=['GET','POST'])
-def Found():
+@app.route('/cari', methods=['GET','POST'])
+def Cari():
     body = request.form
-    pokefav = body['pokemon']
+    pokefav = body['Pokemon']
     pokefav = pokefav.lower()
     if pokefav not in list(df['Name']):
         return redirect('/NotFound')
-    indexfav = df[df["Name"] == pokefav].index[0]
     favorit = df.iloc[indexfav][["Name",'Type 1','Generation','Legendary']]
     url = 'https://pokeapi.co/api/v2/pokemon/'+ pokefav
     url = requests.get(url)
-    picReko = url.json()["sprites"]["front_default"]
-    pokeRekomen = list(enumerate(skorPoke[indexfav]))
-    pokeSamaSort = sorted(pokeRekomen, key= lambda x:x[1], reverse= True)
-    Rekomendasi=[]
-    for item in pokeSamaSort[:7]:
+    pictRecom = url.json()["sprites"]["front_default"]
+    pokeSamaSortir = sorted(pokemonrekomendasi, key= lambda x:x[1], reverse= True)
+    Rekom=[]
+    for item in pokeSamaSortir[:7]:
         x={}
         if item[0] != indexfav:
             nama = df.iloc[item[0]]['Name'].capitalize()
@@ -86,13 +83,13 @@ def Found():
             x['Legend']= legend
             x['Generation']= gen
             x["gambar"] = pic
-            Rekomendasi.append(x)
-    return render_template('hasil.html',rekomen= Rekomendasi, favorit= favorit, pic=picReko)
+            Rekom.append(x)
+    return render_template('hasil.html',rekomen= Rekom, favorit= favorit, pic=pictRecom)
 
+#---------------------------------------------------------------------
 @app.route('/NotFound')
 def notFound():
     return render_template('notfound.html')
-
-
-if __name__ == "__main__":
-    app.run(debug = True, port=5000)
+#--------------------------------------------------------
+if __name__ == '__main__':
+    app.run(debug=True, port=5000)

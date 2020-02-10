@@ -9,18 +9,18 @@
         }
     </style>
 </head>
-<body>
+<body style="background-image: url('https://c4.wallpaperflare.com/wallpaper/0/746/501/pokemon-wallpaper-preview.jpg');">
     <center>
-    <h2>Pokemon Favoritmu</h2>
+    <h2>Pokemon Favorit Kamu</h2>
     <img src="{{pic}}" alt="gambar poke"><br>
     Nama : {{favorit['Name'].capitalize()}} <br>
-    Type : {{favorit['Type 1']}} | Gen {{favorit['Generation']}} | Legendary : {{favorit['Legendary']}}<br>
-    <h2>Rekomendasi Pokemon dari kami</h2>
+    Type : {{favorit['Type 1']}} , Gen {{favorit['Generation']}} , Legendary : {{favorit['Legendary']}}<br>
+    <h2>Ini Rekomendasi Pokemon dari Kami</h2>
     <ul>
         {% for item in rekomen %}
         <img src="{{item['gambar']}}" alt="gambar poke"><br>
         <h4>Nama : {{ item['Name'] }}</h4><br>
-        Type : {{ item['Type'] }} | Gen {{ item['Generation'] }} | Legendary : {{ item['Legend'] }} <br>
+        Type : {{ item['Type'] }} , Gen {{ item['Generation'] }} , Legendary : {{ item['Legend'] }} <br>
         {% endfor %}
     </ul>
     <form action="http://localhost:5000/">
