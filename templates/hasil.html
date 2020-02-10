@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <title>Cari Pokemon Favorit</title>
+    <style>
+    body {
+        background-color: white;
+        }
+    </style>
+</head>
+<body>
+    <center>
+    <h2>Pokemon Favoritmu</h2>
+    <img src="{{pic}}" alt="gambar poke"><br>
+    Nama : {{favorit['Name'].capitalize()}} <br>
+    Type : {{favorit['Type 1']}} | Gen {{favorit['Generation']}} | Legendary : {{favorit['Legendary']}}<br>
+    <h2>Rekomendasi Pokemon dari kami</h2>
+    <ul>
+        {% for item in rekomen %}
+        <img src="{{item['gambar']}}" alt="gambar poke"><br>
+        <h4>Nama : {{ item['Name'] }}</h4><br>
+        Type : {{ item['Type'] }} | Gen {{ item['Generation'] }} | Legendary : {{ item['Legend'] }} <br>
+        {% endfor %}
+    </ul>
+    <form action="http://localhost:5000/">
+        <button type="submit">Kembali</button>
+    </form>
+</center>
+
+</body>
+</html>
